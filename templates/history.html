@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block title %}
+  Quote
+{% endblock %}
+
+
+{% block main %}
+  <h6>Losing your money has never been so easy!</h6><br>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Share</th>
+      <th>Price</th>
+      <th>Transaction Date</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {% if order is defined %}
+      {%  for row in order %}
+      <tr>
+        <td>{{ row['symbol'] }}</td>
+        <td>{{ row['qty'] }}</td>
+        <td>${{ "%.2f"|format(row['price']) }}</td>
+        <td>{{ row['timestamp'] }}</td>
+      </tr>
+      {% endfor %}
+    {% else %}
+      <tr>
+      <td>You haven't placed any orders</td>
+      </tr>
+    {% endif %}
+
+  </table>
+
+{% endblock %}

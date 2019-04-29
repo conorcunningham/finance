@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}
+  Quote
+{% endblock %}
+
+
+{% block main %}
+  <h6>Losing your money has never been so easy!</h6><br>
+  <form action="{{ url_for('sell') }}" method="post">
+    <div class="form-group">
+      <select class="form-control" name="symbol">
+        <option disabled selected value="">Symbol</option>
+        {% if data is defined %}
+          {% for row in data %}
+            <option>{{ row }}</option>
+          {% endfor %}
+        {% endif %}
+      </select>
+    </div>
+    <div class="form-group">
+      <input autocomplete="off" class="form-control" min="1" name="shares" placeholder="Shares" type="number">
+    </div>
+    <div class="form-group">
+      <button class="btn btn-primary">Sell</button>
+    </div>
+  </form>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block title %}
+  Quote
+{% endblock %}
+
+
+{% block main %}
+  <h6>Losing your money has never been so easy!</h6><br>
+
+  <p>A share of {{ quote['name'] }} ({{ quote['symbol'] }}) costs ${{ quote['price'] }}</p>
+
+{% endblock %}

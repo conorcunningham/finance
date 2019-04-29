@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block title %}
+    Quote
+{% endblock %}
+
+
+{% block main %}
+<h6>Losing your money has never been so easy!</h6><br>
+
+   <form action="{{ url_for('quote') }}" method="post">
+    <div class="form-group">
+      <input type="text" class="form-control" id="symbol" name="symbol" placeholder="Enter a stock">
+    </div>
+    <div class="form-group">
+      <button class="btn btn-primary">Register</button>
+    </div>
+  </form>
+
+{% endblock %}

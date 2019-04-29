@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block title %}
+  Quote
+{% endblock %}
+
+
+{% block main %}
+  <h6>Losing your money has never been so easy!</h6><br>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Name</th>
+      <th>Shares</th>
+      <th>Price</th>
+      <th>TOTAL</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {% if data is defined %}
+      {%  for row in data %}
+      <tr>
+        <td>{{ row['symbol'] }}</td>
+        <td>{{ row['name'] }}</td>
+        <td>{{ row['qty'] }}</td>
+        <td>${{ row['price'] }}</td>
+        <td>${{ row['value'] }}</td>
+      </tr>
+      {% endfor %}
+    {% endif %}
+
+    <tr>
+      <td colspan="4">CASH</td>
+      <td>${{ "%.2f"|format(cash) }}</td>
+    </tr>
+    </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="4"></td>
+      <td>${{ "%.2f"|format(value) }}</td>
+    </tr>
+    </tfoot>
+  </table>
+
+{% endblock %}
