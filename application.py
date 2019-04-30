@@ -15,6 +15,8 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Ensure responses aren't cached
+
+
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -61,8 +63,6 @@ def index():
             share_data['value'] = float(row.qty) * share['price']
             user_data.append(share_data)
             value += share_data['value']
-            print(f"share: {share_data}")
-            print(f"user: {user_data}")
 
         return render_template("index.html", data=user_data, value=value, cash=user_row.cash)
     else:
@@ -83,26 +83,30 @@ def buy():
 
         # check that symbol and qty aren't null
         if symbol is None:
-            flash(f"Symbol {symbol} not found", "warning")
-            return render_template("buy.html")
+            flash(f"1 Symbol {symbol} not found", "warning")
+            return apology(f"Share {symbol} not found")
 
-        if qty is None:
-            flash(f"You must specify a quantity of shares to buy", "warning")
-            return render_template("buy.html")
+        if not qty.isdigit() or qty is None:
+            flash(f"0 You must specify a quantity of shares to buy", "warning")
+            return apology("Please specify a valid quantity")
+
+        qty = int(qty)
+
+        if not isinstance(qty, int):
+            flash(f"3 You must specify a quantity of shares to buy", "warning")
+            return apology("Please specify a valid quantity")
 
         # get the quote
         user_quote = lookup(symbol)
-        qty = int(qty)
 
         # handle a return value of None
         if user_quote is None:
             flash(f"Symbol {symbol} not found", "warning")
-            return render_template("buy.html")
+            return apology(f"Share {symbol} not found")
 
         # get user's information
         user_row = User.query.filter_by(id=session["user_id"]).first()
         if user_row is None:
-            print(session["user_id"])
             return apology("Something went very wrong, 400")
 
         # check the user can afford the purchase
@@ -136,12 +140,14 @@ def buy():
         # commit the db
         db.session.commit()
 
+        flash(f"You purchased {qty} {symbol} shares")
         return redirect(url_for('index'))
 
 
-@app.route("/check/<name>", methods=["GET"])
-def check(name):
+@app.route("/check/", methods=["GET"])
+def check():
     """Return true if username available, else false, in JSON format"""
+    name = request.args.get("username")
     if name is None or len(name) < 1:
         return jsonify(False)
 
@@ -245,7 +251,7 @@ def quote():
         # check that symbol isn't null
         if symbol is None:
             flash(f"Symbol {symbol} not found", "warning")
-            return render_template("quote.html")
+            return apology(f"Share {symbol} not found")
 
         # get the quote
         user_quote = lookup(symbol)
@@ -253,7 +259,7 @@ def quote():
         # handle a return value of None
         if user_quote is None:
             flash(f"Symbol {symbol} not found", "warning")
-            return render_template("quote.html")
+            return apology(f"Share {symbol} not found")
 
         return render_template("quoted.html", quote=user_quote)
 
@@ -283,6 +289,10 @@ def register():
             return apology('Please ensure your passwords match')
 
         # check that username is unique
+        exists = User.query.filter_by(username=username).first()
+        if exists:
+            flash(f"Username {username} is already in use.")
+            return render_template("register.html")
 
         # insert user to database
         user_hash = generate_password_hash(password)
@@ -313,7 +323,14 @@ def sell():
         symbol = request.form.get("symbol")
 
         if qty < 1 or symbol is None:
+            flash("Please enter a valid number of shares")
             return apology("There has been a problem", 400)
+
+        # check that the user has enough shares
+        holdings = Holdings.query.filter_by(user=session['user_id'], symbol=symbol).first()
+        if holdings.qty < qty:
+            flash("You do not have enough shares")
+            return apology(f"You have {holdings.qty} shares, but you tried to buy {qty} shares", 400)
 
         # get share info
         share_info = lookup(symbol)
@@ -338,6 +355,7 @@ def sell():
         db.session.commit()
 
         # return to index
+        flash(f"You sold {qty} {symbol} shares")
         return redirect(url_for("index"))
 
 
@@ -357,7 +375,6 @@ def main():
     # Create tables based on each table definition in `models`
     db.create_all()
     db.session.commit()
-    print(__name__)
 
 
 if __name__ == "__main__":

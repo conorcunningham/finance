@@ -24,21 +24,21 @@
         <td>{{ row['symbol'] }}</td>
         <td>{{ row['name'] }}</td>
         <td>{{ row['qty'] }}</td>
-        <td>${{ row['price'] }}</td>
-        <td>${{ row['value'] }}</td>
+        <td>{{ row['price'] | usd }}</td>
+        <td>{{ row['value'] | usd }}</td>
       </tr>
       {% endfor %}
     {% endif %}
 
     <tr>
       <td colspan="4">CASH</td>
-      <td>${{ "%.2f"|format(cash) }}</td>
+      <td>{{ cash | usd }}</td>
     </tr>
     </tbody>
   <tfoot>
     <tr>
       <td colspan="4"></td>
-      <td>${{ "%.2f"|format(value) }}</td>
+      <td>{{ value | usd }}</td>
     </tr>
     </tfoot>
   </table>

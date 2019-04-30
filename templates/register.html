@@ -5,22 +5,62 @@
 
 
 {% block main %}
-<h6>Losing your money has never been so easy!</h6><br>
+    <!--suppress HtmlFormInputWithoutLabel -->
+    <h6>Losing your money has never been so easy!</h6><br>
+    <div id="error">
 
-  <form action="{{ url_for('register') }}" method="post">
-    <div class="form-group">
-      <input type="text" class="form-control" id="username" name="username" placeholder="Enter a username">
     </div>
-    <div class="form-group">
-      <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
-    </div>
-    <div class="form-group">
-      <input type="password" class="form-control" id="confirm_password" name="confirmation"
-             placeholder="Please confirm your password">
-    </div>
-    <div class="form-group">
-      <button class="btn btn-primary">Register</button>
-    </div>
-  </form>
+
+    <form action="{{ url_for('register') }}" method="post" id="register-form">
+        <div class="form-group">
+            <input type="text" class="form-control" id="username" name="username" placeholder="Enter a username">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="confirm_password" name="confirmation"
+                   placeholder="Please confirm your password">
+        </div>
+        <button class="btn btn-primary" type="submit" id="btn">Register</button>
+    </form>
+
+    <script>
+    // start our listeners on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+        // Listen for the submit form
+        document.querySelector("#register-form").addEventListener("submit", (e) => {
+            let hostname = 'localhost';
+            const request = new XMLHttpRequest();
+            // get the username from the input field
+            const username = document.querySelector('#username').value;
+            // build our request
+            request.open('GET', `http://${hostname}:5000/check/?username=${username}`);
+            // onload callback
+            request.onload = () => {
+                // Extract JSON data from request
+                if (!JSON.parse(request.responseText)) {
+                    // prevent the form from submitting until we know whether we want to submit it.
+                    e.preventDefault();
+                    // build and display our error message HTML element
+                    const errorMsg = document.createElement("p");
+                    errorMsg.setAttribute("class", "error-message");
+                    errorMsg.innerHTML = (`Username ${username} is already in use. Please choose another username.`);
+                    const errorDiv = document.getElementById("error");
+                    errorDiv.append(errorMsg);
+                    return false;
+                } else {
+                    // username is unique, so submit the form
+                    document.getElementById("register-form").submit();
+                    return true;
+                }
+            };
+            // send request
+            request.send();
+            // prevent the form from submitting until we know whether we want to submit it.
+            e.preventDefault();
+        });
+    });
+    </script>
 
 {% endblock %}
